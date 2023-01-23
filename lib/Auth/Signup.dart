@@ -53,7 +53,8 @@ class _SignUpScreeenState extends State<SignUpScreeen> {
         'name': nameController.text.toString(), // John Doe
         'email': emailController.text.toString(), // Stokes and Sons
         'password': passController.text.toString(),
-        'id': user.uid
+        'id': user.uid,
+        "palyer_registed": "no"
       });
       Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreeen()));
       setState(() {

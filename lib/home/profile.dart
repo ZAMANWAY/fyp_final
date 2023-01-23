@@ -1,10 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fyp/global/colors.dart';
+import 'package:fyp/home/home.dart';
+import 'package:fyp/utils/utils.dart';
+import 'package:fyp/widget.dart/CustomButton.dart';
 import 'package:get/get.dart';
 
 class ProfileScreen extends StatefulWidget {
-  ProfileScreen({Key? key}) : super(key: key);
+  String? gameId;
+  ProfileScreen({Key? key, this.gameId}) : super(key: key);
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -12,6 +18,27 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   var dropdownValue;
+  User? user = FirebaseAuth.instance.currentUser;
+  TextEditingController stremIDController = TextEditingController();
+  TextEditingController roleController = TextEditingController();
+  TextEditingController aliasController = TextEditingController();
+  TextEditingController genderController = TextEditingController();
+
+  Future<void> saveData(
+    String stremId,
+    role,
+    alias,
+    gender,
+  ) async {
+    FirebaseFirestore.instance.collection('users').doc(user!.uid).update(
+      {'stremId': stremId, "role": role, "alias": alias, "gender": gender, "palyer_registed": "yes", "gameId": widget.gameId},
+    ).then((value) {
+      Utils.flushBarSuccessMessage("profile created successfully", context);
+      Get.to(() => HomeScreeen());
+    });
+  }
+
+// update firestore document field
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       //     ),
       //   ),
       // ),
-
+// get data from documnet id firestore
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () {
@@ -96,6 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 20.verticalSpace,
                 TextFormField(
+                  controller: stremIDController,
                   scrollPadding: EdgeInsets.only(bottom: 200),
                   cursorColor: kprimary,
                   decoration: InputDecoration(
@@ -126,6 +154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 10.verticalSpace,
                 TextFormField(
+                  controller: roleController,
                   scrollPadding: EdgeInsets.only(bottom: 200),
                   cursorColor: kprimary,
                   decoration: InputDecoration(
@@ -156,6 +185,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 10.verticalSpace,
                 TextFormField(
+                  controller: aliasController,
                   scrollPadding: EdgeInsets.only(bottom: 200),
                   cursorColor: kprimary,
                   decoration: InputDecoration(
@@ -186,6 +216,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 10.verticalSpace,
                 TextFormField(
+                  controller: genderController,
                   scrollPadding: EdgeInsets.only(bottom: 200),
                   cursorColor: kprimary,
                   decoration: InputDecoration(
@@ -210,36 +241,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     filled: true,
                     hintText: "Will Smith",
                     labelText: "Gender",
-                    labelStyle: TextStyle(color: kprimary, fontSize: 12),
-                    floatingLabelAlignment: FloatingLabelAlignment.start,
-                  ),
-                ),
-                10.verticalSpace,
-                TextFormField(
-                  scrollPadding: EdgeInsets.only(bottom: 200),
-                  cursorColor: kprimary,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.r),
-                      borderSide: BorderSide(color: kprimary),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.r),
-                      borderSide: BorderSide(color: kprimary),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.r),
-                      borderSide: BorderSide(color: kprimary),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.r),
-                      borderSide: BorderSide(color: kprimary),
-                    ),
-                    fillColor: Colors.black.withOpacity(0.3),
-                    filled: true,
-                    hintText: "Will Smith",
-                    labelText: "Role",
                     labelStyle: TextStyle(color: kprimary, fontSize: 12),
                     floatingLabelAlignment: FloatingLabelAlignment.start,
                   ),
@@ -304,8 +305,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 //     ),
                 //   ],
                 // ),
-
-                20.verticalSpace
+// make textfield null
+                20.verticalSpace,
+                btn(
+                  width: 335,
+                  ButtonText: "Save",
+                  height: 58.h,
+                  tap: () {
+                    saveData(stremIDController.text.toString(), roleController.text.toString(), aliasController.text.toString(), genderController.text.toString());
+                    stremIDController.clear();
+                    roleController.clear();
+                    aliasController.clear();
+                    genderController.clear();
+                  },
+                ),
               ],
             ),
           ),

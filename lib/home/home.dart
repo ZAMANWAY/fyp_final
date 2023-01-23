@@ -19,6 +19,7 @@ class HomeScreeen extends StatefulWidget {
 class _HomeScreeenState extends State<HomeScreeen> {
   final auth = FirebaseAuth.instance;
   User? user = FirebaseAuth.instance.currentUser;
+  String? category;
   DocumentSnapshot? snapshot;
   @override
   void initState() {
@@ -26,6 +27,7 @@ class _HomeScreeenState extends State<HomeScreeen> {
     super.initState();
 
     _loadUserData();
+    getFilteredUsers();
   }
 
   final CollectionReference firestoreInstance = FirebaseFirestore.instance.collection('users');
@@ -43,6 +45,37 @@ class _HomeScreeenState extends State<HomeScreeen> {
         email = event['email'];
       });
     });
+  }
+
+  List<String> selectedUsers = [];
+
+  void selectUser(String user) {
+    if (selectedUsers.length < 5) {
+      setState(() {
+        // selectedUsers.add(user);
+        selectedUsers.add(user);
+      });
+    } else {
+      showDialog(context: context, builder: (context) => AlertDialog(title: Text('Error'), content: Text('You can only select 5 users!')));
+    }
+  }
+
+  void removeUser(String user) {
+    setState(() {
+      selectedUsers.removeWhere((item) => item == user);
+    });
+  }
+
+  List<Map<String, dynamic>> usersList = [];
+
+  void getFilteredUsers() async {
+    CollectionReference usersRef = FirebaseFirestore.instance.collection('users');
+
+    QuerySnapshot querySnapshot = await usersRef.where('palyer_registed', isEqualTo: "yes").get();
+
+    querySnapshot.docs.forEach((doc) => usersList.add(doc.data()! as Map<String, dynamic>));
+
+    setState(() {});
   }
 
   @override
@@ -121,132 +154,205 @@ class _HomeScreeenState extends State<HomeScreeen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          SizedBox(
-            height: 20,
-          ),
-          StreamBuilder<QuerySnapshot>(
-            stream: categories,
-            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.hasError) {
-                return Text('Something went wrong');
-              }
+      body:
 
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Text("Loading");
-              }
+          //  Column(
+          //   children: [
+          //     SizedBox(
+          //       height: 20,
+          //     ),
+          //     StreamBuilder<QuerySnapshot>(
+          //       stream: categories,
+          //       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          //         if (snapshot.hasError) {
+          //           return Text('Something went wrong');
+          //         }
 
-              return Expanded(
-                child: ListView(
-                  children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                    Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-                    return Column(
-                      children: [
-                        Text(data['game_type'].toString()),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Get.to(() => GameScreeen());
-                          },
-                          child: Container(
-                            height: 200,
-                            width: 300,
-                            decoration: BoxDecoration(
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.5),
-                                  spreadRadius: 5,
-                                  blurRadius: 7,
-                                  offset: Offset(0, 3), // changes position of shadow
-                                ),
-                              ],
-                              image: DecorationImage(image: NetworkImage(data['game_image'].toString()), fit: BoxFit.fill),
-                              borderRadius: BorderRadius.circular(10.r),
+          //         if (snapshot.connectionState == ConnectionState.waiting) {
+          //           return Text("Loading");
+          //         }
+
+          //         return Expanded(
+          //           child: ListView(
+          //             children: snapshot.data!.docs.map((DocumentSnapshot document) {
+          //               Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+          //               return Column(
+          //                 children: [
+          //                   Text(data['game_type'].toString()),
+          //                   SizedBox(
+          //                     height: 20,
+          //                   ),
+          //                   GestureDetector(
+          //                     onTap: () {
+          //                       Get.to(() => GameScreeen());
+          //                     },
+          //                     child: Container(
+          //                       height: 200,
+          //                       width: 300,
+          //                       decoration: BoxDecoration(
+          //                         boxShadow: [
+          //                           BoxShadow(
+          //                             color: Colors.grey.withOpacity(0.5),
+          //                             spreadRadius: 5,
+          //                             blurRadius: 7,
+          //                             offset: Offset(0, 3), // changes position of shadow
+          //                           ),
+          //                         ],
+          //                         image: DecorationImage(image: NetworkImage(data['game_image'].toString()), fit: BoxFit.fill),
+          //                         borderRadius: BorderRadius.circular(10.r),
+          //                       ),
+          //                     ),
+          //                   ),
+          //                   SizedBox(
+          //                     height: 20,
+          //                   ),
+          //                 ],
+          //               );
+          //             }).toList(),
+          //           ),
+          //         );
+          //       },
+          //     )
+          //   ],
+          // ),
+
+          Container(
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            10.verticalSpace,
+            Container(
+              margin: EdgeInsets.only(left: 20),
+              child: Text(
+                "Available Players",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14.sp,
+                ),
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 20),
+              child: Text(
+                "Select your team members",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 11.sp,
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    height: 100.h,
+                    decoration: BoxDecoration(color: Color.fromARGB(255, 199, 219, 235), borderRadius: BorderRadius.circular(20)),
+                    child: ListView.builder(
+                        itemCount: usersList.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            title: Text(usersList[index]["name"]),
+                            trailing: IconButton(
+                              iconSize: 30,
+                              icon: Icon((selectedUsers.contains('${usersList[index]["name"]}')) ? Icons.check_box : Icons.add),
+                              onPressed: () => (selectedUsers.contains('${usersList[index]["name"]}')) ? removeUser('${usersList[index]["name"]}') : selectUser('${usersList[index]["name"]}'),
                             ),
+                          );
+                        }),
+                  ),
+                ),
+                Expanded(
+                    child: (selectedUsers.length > 0)
+                        ? Container(
+                            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            height: 100.h,
+                            decoration: BoxDecoration(color: Color.fromARGB(255, 199, 219, 235), borderRadius: BorderRadius.circular(20)),
+                            child: ListView.builder(
+                              itemCount: selectedUsers.length,
+                              itemBuilder: (context, index) => ListTile(
+                                title: Text(' ${selectedUsers[index]}'),
+                                trailing: IconButton(
+                                  iconSize: 30,
+                                  icon: Icon(Icons.delete),
+                                  onPressed: () => removeUser(' ${selectedUsers[index]}'),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Center(child: Text('No users selected!')))
+              ],
+            ),
+            Center(
+              child: Column(
+                children: [
+                  10.verticalSpace,
+                  Text(
+                    "Select Category",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18.sp,
+                    ),
+                  ),
+                  20.verticalSpace,
+                  Wrap(
+                    runSpacing: 20.h,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          category = 'physical';
+                          Get.to(() => GameScreeen(
+                                category: category.toString(),
+                              ));
+                        },
+                        child: Container(
+                          height: 200,
+                          width: 300,
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 5,
+                                blurRadius: 7,
+                                offset: Offset(0, 3), // changes position of shadow
+                              ),
+                            ],
+                            image: DecorationImage(image: AssetImage("assets/5272450.jpg"), fit: BoxFit.fill),
+                            borderRadius: BorderRadius.circular(10.r),
                           ),
                         ),
-                        SizedBox(
-                          height: 20,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          category = 'virtual';
+                          Get.to(() => SportScreeen(category: category.toString()));
+                        },
+                        child: Container(
+                          height: 200,
+                          width: 300,
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 5,
+                                blurRadius: 7,
+                                offset: Offset(0, 3), // changes position of shadow
+                              ),
+                            ],
+                            image: DecorationImage(image: AssetImage("assets/sport.jpg"), fit: BoxFit.fill),
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
                         ),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              );
-            },
-          )
-        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-
-      //  Container(
-      //   width: double.infinity,
-      //   child: Padding(
-      //     padding: EdgeInsets.symmetric(horizontal: 20.w),
-      //     child: Column(
-      //       children: [
-      //         20.verticalSpace,
-      //         Text(
-      //           "Select Category",
-      //           style: TextStyle(
-      //             color: Colors.black,
-      //             fontSize: 18.sp,
-      //           ),
-      //         ),
-      //         20.verticalSpace,
-      //         Wrap(
-      //           runSpacing: 20.h,
-      //           children: [
-      //             GestureDetector(
-      //               onTap: () {
-      //                 Get.to(() => GameScreeen());
-      //               },
-      //               child: Container(
-      //                 height: 200,
-      //                 width: 300,
-      //                 decoration: BoxDecoration(
-      //                   boxShadow: [
-      //                     BoxShadow(
-      //                       color: Colors.grey.withOpacity(0.5),
-      //                       spreadRadius: 5,
-      //                       blurRadius: 7,
-      //                       offset: Offset(0, 3), // changes position of shadow
-      //                     ),
-      //                   ],
-      //                   image: DecorationImage(image: AssetImage("assets/5272450.jpg"), fit: BoxFit.fill),
-      //                   borderRadius: BorderRadius.circular(10.r),
-      //                 ),
-      //               ),
-      //             ),
-      //             GestureDetector(
-      //               onTap: () {
-      //                 Get.to(() => SportScreeen());
-      //               },
-      //               child: Container(
-      //                 height: 200,
-      //                 width: 300,
-      //                 decoration: BoxDecoration(
-      //                   boxShadow: [
-      //                     BoxShadow(
-      //                       color: Colors.grey.withOpacity(0.5),
-      //                       spreadRadius: 5,
-      //                       blurRadius: 7,
-      //                       offset: Offset(0, 3), // changes position of shadow
-      //                     ),
-      //                   ],
-      //                   image: DecorationImage(image: AssetImage("assets/sport.jpg"), fit: BoxFit.fill),
-      //                   borderRadius: BorderRadius.circular(10.r),
-      //                 ),
-      //               ),
-      //             ),
-      //           ],
-      //         ),
-      //       ],
-      //     ),
-      //   ),
-      // ),
     );
   }
 }
