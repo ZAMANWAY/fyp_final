@@ -6,6 +6,7 @@ import 'package:fyp/Auth/login.dart';
 import 'package:fyp/global/constanst.dart';
 import 'package:fyp/home/games.dart';
 import 'package:fyp/home/sport.dart';
+import 'package:fyp/home/userScreen.dart';
 import 'package:fyp/utils/utils.dart';
 import 'package:get/get.dart';
 
@@ -27,7 +28,6 @@ class _HomeScreeenState extends State<HomeScreeen> {
     super.initState();
 
     _loadUserData();
-    getFilteredUsers();
   }
 
   final CollectionReference firestoreInstance = FirebaseFirestore.instance.collection('users');
@@ -45,37 +45,6 @@ class _HomeScreeenState extends State<HomeScreeen> {
         email = event['email'];
       });
     });
-  }
-
-  List<String> selectedUsers = [];
-
-  void selectUser(String user) {
-    if (selectedUsers.length < 5) {
-      setState(() {
-        // selectedUsers.add(user);
-        selectedUsers.add(user);
-      });
-    } else {
-      showDialog(context: context, builder: (context) => AlertDialog(title: Text('Error'), content: Text('You can only select 5 users!')));
-    }
-  }
-
-  void removeUser(String user) {
-    setState(() {
-      selectedUsers.removeWhere((item) => item == user);
-    });
-  }
-
-  List<Map<String, dynamic>> usersList = [];
-
-  void getFilteredUsers() async {
-    CollectionReference usersRef = FirebaseFirestore.instance.collection('users');
-
-    QuerySnapshot querySnapshot = await usersRef.where('palyer_registed', isEqualTo: "yes").get();
-
-    querySnapshot.docs.forEach((doc) => usersList.add(doc.data()! as Map<String, dynamic>));
-
-    setState(() {});
   }
 
   @override
@@ -116,6 +85,23 @@ class _HomeScreeenState extends State<HomeScreeen> {
                   color: Colors.black,
                 ),
                 title: Text("Profile"),
+              ),
+              Divider(
+                color: Colors.grey,
+                height: 0,
+                thickness: 0.5,
+                endIndent: 80.w,
+                indent: 10.w,
+              ),
+              ListTile(
+                onTap: () {
+                  Get.to(() => UserDetailScreen());
+                },
+                leading: Icon(
+                  Icons.person,
+                  color: Colors.black,
+                ),
+                title: Text("Team members"),
               ),
               Divider(
                 color: Colors.grey,
@@ -222,68 +208,69 @@ class _HomeScreeenState extends State<HomeScreeen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             10.verticalSpace,
-            Container(
-              margin: EdgeInsets.only(left: 20),
-              child: Text(
-                "Available Players",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.sp,
-                ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(left: 20),
-              child: Text(
-                "Select your team members",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 11.sp,
-                ),
-              ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    height: 100.h,
-                    decoration: BoxDecoration(color: Color.fromARGB(255, 199, 219, 235), borderRadius: BorderRadius.circular(20)),
-                    child: ListView.builder(
-                        itemCount: usersList.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            title: Text(usersList[index]["name"]),
-                            trailing: IconButton(
-                              iconSize: 30,
-                              icon: Icon((selectedUsers.contains('${usersList[index]["name"]}')) ? Icons.check_box : Icons.add),
-                              onPressed: () => (selectedUsers.contains('${usersList[index]["name"]}')) ? removeUser('${usersList[index]["name"]}') : selectUser('${usersList[index]["name"]}'),
-                            ),
-                          );
-                        }),
-                  ),
-                ),
-                Expanded(
-                    child: (selectedUsers.length > 0)
-                        ? Container(
-                            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                            height: 100.h,
-                            decoration: BoxDecoration(color: Color.fromARGB(255, 199, 219, 235), borderRadius: BorderRadius.circular(20)),
-                            child: ListView.builder(
-                              itemCount: selectedUsers.length,
-                              itemBuilder: (context, index) => ListTile(
-                                title: Text(' ${selectedUsers[index]}'),
-                                trailing: IconButton(
-                                  iconSize: 30,
-                                  icon: Icon(Icons.delete),
-                                  onPressed: () => removeUser(' ${selectedUsers[index]}'),
-                                ),
-                              ),
-                            ),
-                          )
-                        : Center(child: Text('No users selected!')))
-              ],
-            ),
+            // Container(
+            //   margin: EdgeInsets.only(left: 20),
+            //   child: Text(
+            //     "Available Players",
+            //     style: TextStyle(
+            //       color: Colors.black,
+            //       fontSize: 14.sp,
+            //     ),
+            //   ),
+            // ),
+            // Container(
+            //   margin: EdgeInsets.only(left: 20),
+            //   child: Text(
+            //     "Select your team members",
+            //     style: TextStyle(
+            //       color: Colors.black,
+            //       fontSize: 11.sp,
+            //     ),
+            //   ),
+            // ),
+            // Row(
+            //   children: [
+            //     Expanded(
+            //       child: Container(
+            //         margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            //         height: 100.h,
+            //         decoration: BoxDecoration(color: Color.fromARGB(255, 199, 219, 235), borderRadius: BorderRadius.circular(20)),
+            //         child: ListView.builder(
+            //             itemCount: usersList.length,
+            //             itemBuilder: (context, index) {
+            //               return ListTile(
+            //                 title: Text(usersList[index]["name"]),
+            //                 subtitle: Text(usersList[index]["phone_number"].toString()),
+            //                 trailing: IconButton(
+            //                   iconSize: 25,
+            //                   icon: Icon((selectedUsers.contains('${usersList[index]["name"]}')) ? Icons.check_box : Icons.add),
+            //                   onPressed: () => (selectedUsers.contains('${usersList[index]["name"]}')) ? removeUser('${usersList[index]["name"]}') : selectUser('${usersList[index]["name"]}'),
+            //                 ),
+            //               );
+            //             }),
+            //       ),
+            //     ),
+            //     Expanded(
+            //         child: (selectedUsers.length > 0)
+            //             ? Container(
+            //                 margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            //                 height: 100.h,
+            //                 decoration: BoxDecoration(color: Color.fromARGB(255, 199, 219, 235), borderRadius: BorderRadius.circular(20)),
+            //                 child: ListView.builder(
+            //                   itemCount: selectedUsers.length,
+            //                   itemBuilder: (context, index) => ListTile(
+            //                     title: Text(' ${selectedUsers[index]}'),
+            //                     trailing: IconButton(
+            //                       iconSize: 30,
+            //                       icon: Icon(Icons.delete),
+            //                       onPressed: () => removeUser(' ${selectedUsers[index]}'),
+            //                     ),
+            //                   ),
+            //                 ),
+            //               )
+            //             : Center(child: Text('No users selected!')))
+            //   ],
+            // ),
             Center(
               child: Column(
                 children: [

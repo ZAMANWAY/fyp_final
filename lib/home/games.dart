@@ -117,6 +117,8 @@ class _GameScreeenState extends State<GameScreeen> {
                           onTap: () {
                             Get.to(() => ProfileScreen(
                                   gameId: data['id'].toString(),
+                                  gameName: data['game_name'].toString(),
+                                  gameImage: data['game_image'].toString(),
                                 ));
                           },
                           child: Container(

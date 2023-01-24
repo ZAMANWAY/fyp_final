@@ -21,6 +21,8 @@ class _SignUpScreeenState extends State<SignUpScreeen> {
   TextEditingController passController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   TextEditingController confirmpassController = TextEditingController();
+  TextEditingController phoneNumberController = TextEditingController();
+
   FirebaseAuth _auth = FirebaseAuth.instance;
   final fireStore = FirebaseFirestore.instance.collection('users');
   bool isLoading = false;
@@ -53,6 +55,7 @@ class _SignUpScreeenState extends State<SignUpScreeen> {
         'name': nameController.text.toString(), // John Doe
         'email': emailController.text.toString(), // Stokes and Sons
         'password': passController.text.toString(),
+        "phone_number": phoneNumberController.text.toString(),
         'id': user.uid,
         "palyer_registed": "no"
       });
@@ -133,6 +136,16 @@ class _SignUpScreeenState extends State<SignUpScreeen> {
                         widthh: 0.8.sw,
                         isPassword: false,
                         labelText: "Email",
+                      ),
+                      SizedBox(height: 20.h),
+                      AuthTextField(
+                        controller: phoneNumberController,
+                        underlineColor: Colors.blue,
+                        labelColor: Colors.grey,
+                        hintColor: Colors.grey,
+                        widthh: 0.8.sw,
+                        isPassword: false,
+                        labelText: "Phone Number",
                       ),
                       SizedBox(height: 20.h),
                       AuthTextField(

@@ -10,7 +10,10 @@ import 'package:get/get.dart';
 
 class ProfileScreen extends StatefulWidget {
   String? gameId;
-  ProfileScreen({Key? key, this.gameId}) : super(key: key);
+  String? gameName;
+  String? gameImage;
+
+  ProfileScreen({Key? key, this.gameId, this.gameName, this.gameImage}) : super(key: key);
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -31,7 +34,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     gender,
   ) async {
     FirebaseFirestore.instance.collection('users').doc(user!.uid).update(
-      {'stremId': stremId, "role": role, "alias": alias, "gender": gender, "palyer_registed": "yes", "gameId": widget.gameId},
+      {
+        'stremId': stremId,
+        "role": role,
+        "alias": alias,
+        "gender": gender,
+        "palyer_registed": "yes",
+        "gameId": widget.gameId,
+        "gameImage": widget.gameImage,
+        "game_name": widget.gameName,
+      },
     ).then((value) {
       Utils.flushBarSuccessMessage("profile created successfully", context);
       Get.to(() => HomeScreeen());
